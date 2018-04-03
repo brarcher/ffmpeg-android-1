@@ -10,7 +10,7 @@ ext {
     siteUrl = 'https://github.com/brarcher/ffmpeg-android-java'
     gitUrl = 'https://github.com/brarcher/ffmpeg-android-java'
 
-    libraryVersion = '0.1'
+    libraryVersion = '0.2'
 
     developerId = 'brarcher'
     developerName = 'brarcher'

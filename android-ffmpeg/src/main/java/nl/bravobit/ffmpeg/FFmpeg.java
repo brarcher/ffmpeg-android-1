@@ -2,7 +2,6 @@ package nl.bravobit.ffmpeg;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,11 +9,14 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.Map;
 
+import nl.bravobit.ffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
+
 public class FFmpeg implements FFbinaryInterface {
     private static final int VERSION = 12; // up this version when you add a new ffmpeg build
     private static final String KEY_PREF_VERSION = "ffmpeg_version";
 
     private final FFbinaryContextProvider context;
+    private FFcommandExecuteAsyncTask ffmpegExecuteAsyncTask;
 
     private static final long MINIMUM_TIMEOUT = 10 * 1000;
     private long timeout = Long.MAX_VALUE;
@@ -109,13 +111,16 @@ public class FFmpeg implements FFbinaryInterface {
     }
 
     @Override
-    public FFtask execute(Map<String, String> environvenmentVars, String[] cmd, FFcommandExecuteResponseHandler ffmpegExecuteResponseHandler) {
+    public FFtask execute(Map<String, String> environvenmentVars, String[] cmd, FFcommandExecuteResponseHandler ffmpegExecuteResponseHandler) throws FFmpegCommandAlreadyRunningException {
+        if (ffmpegExecuteAsyncTask != null && !ffmpegExecuteAsyncTask.isProcessCompleted()) {
+            throw new FFmpegCommandAlreadyRunningException("FFmpeg command is already running, you are only allowed to run single command at a time");
+        }
         if (cmd.length != 0) {
             String[] ffmpegBinary = new String[]{FileUtils.getFFmpegCommand(context.provide(), environvenmentVars)};
             String[] command = concatenate(ffmpegBinary, cmd);
-            FFcommandExecuteAsyncTask task = new FFcommandExecuteAsyncTask(command, timeout, ffmpegExecuteResponseHandler);
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            return task;
+            ffmpegExecuteAsyncTask = new FFcommandExecuteAsyncTask(command, timeout, ffmpegExecuteResponseHandler);
+            ffmpegExecuteAsyncTask.execute();
+            return ffmpegExecuteAsyncTask;
         } else {
             throw new IllegalArgumentException("shell command cannot be empty");
         }
@@ -134,18 +139,20 @@ public class FFmpeg implements FFbinaryInterface {
     }
 
     @Override
-    public FFtask execute(String[] cmd, FFcommandExecuteResponseHandler ffmpegExecuteResponseHandler) {
+    public FFtask execute(String[] cmd, FFcommandExecuteResponseHandler ffmpegExecuteResponseHandler) throws FFmpegCommandAlreadyRunningException {
         return execute(null, cmd, ffmpegExecuteResponseHandler);
     }
 
     @Override
-    public boolean isCommandRunning(FFcommandExecuteAsyncTask task) {
-        return task != null && !task.isProcessCompleted();
+    public boolean isCommandRunning() {
+        return ffmpegExecuteAsyncTask != null && !ffmpegExecuteAsyncTask.isProcessCompleted();
     }
 
     @Override
-    public boolean killRunningProcesses(FFcommandExecuteAsyncTask task) {
-        return Util.killAsync(task);
+    public boolean killRunningProcesses() {
+        boolean status = Util.killAsync(ffmpegExecuteAsyncTask);
+        ffmpegExecuteAsyncTask = null;
+        return status;
     }
 
     @Override
@@ -153,5 +160,15 @@ public class FFmpeg implements FFbinaryInterface {
         if (timeout >= MINIMUM_TIMEOUT) {
             this.timeout = timeout;
         }
+    }
+
+    @Override
+    public FFbinaryObserver whenFFbinaryIsReady(Runnable onReady, int timeout) {
+        return Util.observeOnce(new Util.ObservePredicate() {
+            @Override
+            public Boolean isReadyToProceed() {
+                return !isCommandRunning();
+            }
+        }, onReady, timeout);
     }
 }

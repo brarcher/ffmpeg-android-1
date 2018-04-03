@@ -31,7 +31,6 @@ FFmpeg in this project was built with the following libraries:
 - Uses native CPU capabilities on ARM architectures
 - FFprobe is bundled in this library too
 - Enabled network capabilities
-- Multithreading
 
 ## Usage
 
@@ -39,7 +38,7 @@ FFmpeg in this project was built with the following libraries:
 Include the dependency
 ```gradle
 dependencies {
-    implementation 'nl.bravobit:android-ffmpeg:1.1.2'
+    implementation 'nl.bravobit:android-ffmpeg:1.1.1'
 }
 ```
 
@@ -58,8 +57,9 @@ This is all you have to do to load the FFmpeg library.
 In this sample code we will run the ffmpeg -version command.
 ```java
 FFmpeg ffmpeg = FFmpeg.getInstance(context);
+try {
   // to execute "ffmpeg -version" command you just need to pass "-version"
-ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+  ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
 
     @Override
     public void onStart() {}
@@ -76,7 +76,10 @@ ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
     @Override
     public void onFinish() {}
 
-});
+  });
+} catch (FFmpegCommandAlreadyRunningException e) {
+  // Handle if FFmpeg is already running
+}
 ```
 
 ### Check if FFprobe is supported
@@ -94,8 +97,9 @@ This is all you have to do to load the FFprobe library.
 In this sample code we will run the ffprobe -version command.
 ```java
 FFprobe ffprobe = FFprobe.getInstance(context);
-// to execute "ffprobe -version" command you just need to pass "-version"
-ffprobe.execute(cmd, new ExecuteBinaryResponseHandler() {
+try {
+  // to execute "ffprobe -version" command you just need to pass "-version"
+  ffprobe.execute(cmd, new ExecuteBinaryResponseHandler() {
 
     @Override
     public void onStart() {}
@@ -112,7 +116,10 @@ ffprobe.execute(cmd, new ExecuteBinaryResponseHandler() {
     @Override
     public void onFinish() {}
 
-});
+  });
+} catch (FFprobeCommandAlreadyRunningException e) {
+  // Handle if FFprobe is already running
+}
 ```
 
 ## Special Thanks To

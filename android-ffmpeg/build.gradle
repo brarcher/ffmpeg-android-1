@@ -1,23 +1,23 @@
 apply plugin: 'com.android.library'
 
 ext {
-    publishedGroupId = 'nl.bravobit'
-    libraryName = 'Android FFmpeg'
-    artifact = 'android-ffmpeg'
+    publishedGroupId = 'protect'
+    libraryName = 'FFmpeg Android Java'
+    artifact = 'ffmpeg-android-java'
 
     libraryDescription = 'FFmpeg/FFprobe compiled for Android. Execute FFmpeg and FFprobe commands with ease in your Android project.'
 
-    siteUrl = 'https://github.com/bravobit/FFmpeg-Android'
-    gitUrl = 'https://github.com/bravobit/FFmpeg-Android.git'
+    siteUrl = 'https://github.com/brarcher/ffmpeg-android-java'
+    gitUrl = 'https://github.com/brarcher/ffmpeg-android-java'
 
-    libraryVersion = '1.1.1'
+    libraryVersion = '0.1'
 
-    developerId = 'Bravobit'
-    developerName = 'Bravobit'
-    developerEmail = 'info@bravobit.nl'
+    developerId = 'brarcher'
+    developerName = 'brarcher'
+    developerEmail = 'b.m.archer4@gmail.com'
 
     licenseName = 'GNU General Public License v3.0'
-    licenseUrl = 'https://github.com/bravobit/FFmpeg-Android/blob/master/LICENSE'
+    licenseUrl = 'https://github.com/brarcher/ffmpeg-android-java/blob/master/LICENSE'
     allLicenses = ["GPL-3.0"]
 }
 
@@ -133,8 +133,8 @@ bintray {
 
     configurations = ['archives']
     pkg {
-        repo = "Android-FFmpeg"
-        name = "android-ffmpeg"
+        repo = "ffmpeg-android-java"
+        name = "ffmpeg-android-java"
         desc = libraryDescription
         websiteUrl = siteUrl
         vcsUrl = gitUrl

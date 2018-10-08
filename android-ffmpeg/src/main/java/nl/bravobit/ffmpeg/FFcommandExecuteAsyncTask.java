@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.concurrent.TimeoutException;
@@ -11,6 +12,7 @@ import java.util.concurrent.TimeoutException;
 class FFcommandExecuteAsyncTask extends AsyncTask<Void, String, CommandResult> implements FFtask {
 
     private final String[] cmd;
+    private final InputStream in;
     private final FFcommandExecuteResponseHandler ffmpegExecuteResponseHandler;
     private final ShellCommand shellCommand;
     private final long timeout;
@@ -21,6 +23,15 @@ class FFcommandExecuteAsyncTask extends AsyncTask<Void, String, CommandResult> i
 
     FFcommandExecuteAsyncTask(String[] cmd, long timeout, FFcommandExecuteResponseHandler ffmpegExecuteResponseHandler) {
         this.cmd = cmd;
+        this.in = null;
+        this.timeout = timeout;
+        this.ffmpegExecuteResponseHandler = ffmpegExecuteResponseHandler;
+        this.shellCommand = new ShellCommand();
+    }
+
+    FFcommandExecuteAsyncTask(String[] cmd, InputStream in, long timeout, FFcommandExecuteResponseHandler ffmpegExecuteResponseHandler) {
+        this.cmd = cmd;
+        this.in = in;
         this.timeout = timeout;
         this.ffmpegExecuteResponseHandler = ffmpegExecuteResponseHandler;
         this.shellCommand = new ShellCommand();
@@ -37,7 +48,7 @@ class FFcommandExecuteAsyncTask extends AsyncTask<Void, String, CommandResult> i
     @Override
     protected CommandResult doInBackground(Void... params) {
         try {
-            process = shellCommand.run(cmd);
+            process = shellCommand.run(cmd, in);
             if (process == null) {
                 return CommandResult.getDummyFailureResponse();
             }

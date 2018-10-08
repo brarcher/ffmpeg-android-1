@@ -111,14 +111,14 @@ public class FFprobe implements FFbinaryInterface {
     }
 
     @Override
-    public FFtask execute(Map<String, String> environvenmentVars, String[] cmd, FFcommandExecuteResponseHandler ffcommandExecuteResponseHandler) throws FFprobeCommandAlreadyRunningException {
+    public FFtask execute(Map<String, String> environvenmentVars, String[] cmd, InputStream in, FFcommandExecuteResponseHandler ffcommandExecuteResponseHandler) throws FFprobeCommandAlreadyRunningException {
         if (ffprobeExecuteAsyncTask != null && !ffprobeExecuteAsyncTask.isProcessCompleted()) {
             throw new FFprobeCommandAlreadyRunningException("FFprobe command is already running, you are only allowed to run single command at a time");
         }
         if (cmd.length != 0) {
             String[] ffprobeBinary = new String[]{FileUtils.getFFprobeCommand(context.provide(), environvenmentVars)};
             String[] command = concatenate(ffprobeBinary, cmd);
-            ffprobeExecuteAsyncTask = new FFcommandExecuteAsyncTask(command, timeout, ffcommandExecuteResponseHandler);
+            ffprobeExecuteAsyncTask = new FFcommandExecuteAsyncTask(command, in, timeout, ffcommandExecuteResponseHandler);
             ffprobeExecuteAsyncTask.execute();
             return ffprobeExecuteAsyncTask;
         } else {
@@ -140,7 +140,12 @@ public class FFprobe implements FFbinaryInterface {
 
     @Override
     public FFtask execute(String[] cmd, FFcommandExecuteResponseHandler ffcommandExecuteResponseHandler) throws FFprobeCommandAlreadyRunningException {
-        return execute(null, cmd, ffcommandExecuteResponseHandler);
+        return execute(null, cmd, null, ffcommandExecuteResponseHandler);
+    }
+
+    @Override
+    public FFtask execute(String[] cmd, InputStream in, FFcommandExecuteResponseHandler ffcommandExecuteResponseHandler) throws FFprobeCommandAlreadyRunningException {
+        return execute(null, cmd, in, ffcommandExecuteResponseHandler);
     }
 
     @Override

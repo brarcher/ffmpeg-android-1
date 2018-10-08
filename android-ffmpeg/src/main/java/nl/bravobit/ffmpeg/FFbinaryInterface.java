@@ -1,5 +1,6 @@
 package nl.bravobit.ffmpeg;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import nl.bravobit.ffmpeg.exceptions.FFcommandAlreadyRunningException;
@@ -12,11 +13,12 @@ interface FFbinaryInterface {
      *
      * @param environmentVars                 Environment variables
      * @param cmd                             command to execute
+     * @param stdin                           stream to feed into ffmpeg's stdin, or null to ignore
      * @param ffcommandExecuteResponseHandler {@link FFcommandExecuteResponseHandler}
      * @return the task
      * @throws FFmpegCommandAlreadyRunningException throws exception when binary is already running
      */
-    FFtask execute(Map<String, String> environmentVars, String[] cmd, FFcommandExecuteResponseHandler ffcommandExecuteResponseHandler) throws FFcommandAlreadyRunningException;
+    FFtask execute(Map<String, String> environmentVars, String[] cmd, InputStream stdin, FFcommandExecuteResponseHandler ffcommandExecuteResponseHandler) throws FFcommandAlreadyRunningException;
 
     /**
      * Executes a command
@@ -27,6 +29,17 @@ interface FFbinaryInterface {
      * @throws FFmpegCommandAlreadyRunningException throws exception when binary is already running
      */
     FFtask execute(String[] cmd, FFcommandExecuteResponseHandler ffcommandExecuteResponseHandler) throws FFcommandAlreadyRunningException;
+
+    /**
+     * Executes a command
+     *
+     * @param cmd                             command to execute
+     * @param stdin                           stream to feed into ffmpeg's stdin, or null to ignore
+     * @param ffcommandExecuteResponseHandler {@link FFcommandExecuteResponseHandler}
+     * @return the task
+     * @throws FFmpegCommandAlreadyRunningException throws exception when binary is already running
+     */
+    FFtask execute(String[] cmd, InputStream stdin, FFcommandExecuteResponseHandler ffcommandExecuteResponseHandler) throws FFcommandAlreadyRunningException;
 
     /**
      * Checks if FF binary is supported on this device
